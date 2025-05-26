@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF에서 한자 단어 추출하기</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #333;
+    }
+
+    /* 파일 업로드 스타일 */
+    .upload-section {
+      margin: 30px 0;
+    }
+
+    input[type=file] {
+      margin: 20px;
+      padding: 10px;
+      border: 2px dashed #ddd;
+      border-radius: 5px;
+      background: #fafafa;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background: #0056b3;
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* 로딩 인디케이터 스타일 */
+    .loading-container {
+      display: none;
+      margin: 30px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 10px;
+      border: 1px solid #e9ecef;
+    }
+
+    .loading-spinner {
+      margin: 0 auto 15px;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 진행률 바 */
+    .progress-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 15px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e9ecef;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      width: 0%;
+      transition: width 0.5s ease;
+      position: relative;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .progress-text {
+      margin-top: 5px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .status-message {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .estimated-time {
+      font-size: 12px;
+      color: #888;
+      font-style: italic;
+    }
+
+    /* 한자 테마 로더 */
+    .hanja-loader {
+      font-size: 2em;
+      margin-bottom: 15px;
+      animation: hanja-bounce 1.5s ease-in-out infinite;
+      color: #007bff;
+    }
+
+    @keyframes hanja-bounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.1); }
+    }
+
+    /* 결과 스타일 */
+    #result {
+      margin-top: 30px;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    #wordList {
+      margin-top: 20px;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      line-height: 1.6;
+      transition: all 0.3s ease;
+    }
+
+    #wordList div {
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    #wordList div:last-child {
+      border-bottom: none;
+    }
+
+    /* 단어 그룹 스타일 */
+    .word-group {
+      margin-bottom: 20px;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 첫 번째 줄 (한자 단어): 파란색 굵은 글씨 */
+    .word-group div:first-child {
+      font-weight: bold;
+      color: #007bff;
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+
+    /* 나머지 줄 (훈음 설명): 회색 작은 글씨 */
+    .word-group div:not(:first-child) {
+      color: #666;
+      font-size: 14px;
+      border: none;
+      padding: 2px 0;
+    }
+
+    a.home-link {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      text-decoration: none;
+      color: #555;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    a.home-link:hover {
+      color: #007bff;
+    }
+
+    /* 에러 메시지 */
+    .error-message {
+      color: #dc3545;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+
+    /* 성공 메시지 */
+    .success-message {
+      color: #155724;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <a href="/" class="home-link">← 메인으로</a>
+
+  <div class="container">
+    <h1>PDF에서 한자 단어 추출 및 음표기</h1>
+
+    <div class="upload-section">
+      <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="pdfFile" name="file" accept="application/pdf" required>
+        <br>
+        <button type="submit" id="submitBtn">업로드 및 단어 추출</button>
+      </form>
+    </div>
+
+    <!-- 로딩 인디케이터 -->
+    <div id="loadingContainer" class="loading-container">
+      <div class="hanja-loader">漢字</div>
+      <div class="loading-spinner"></div>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText" class="progress-text">0%</div>
+      </div>
+
+      <div id="statusMessage" class="status-message">파일 업로드 중...</div>
+      <div id="estimatedTime" class="estimated-time">처리 중...</div>
+    </div>
+
+    <div id="result"></div>
+    <div id="wordList"></div>
+  </div>
+
+  <script>
+    let isProcessing = false;
+    let progressInterval = null;
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      if (isProcessing) return;
+
+      const fileInput = document.getElementById('pdfFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        showMessage('파일을 선택해주세요.', 'error');
+        return;
+      }
+
+      startProcessing();
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // 1. 파일 업로드 및 작업 시작
+        const response = await fetch('/upload2', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const taskId = data.task_id;
+
+        // 2. 실시간 진행률 모니터링 시작
+        startProgressMonitoring(taskId);
+
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage(`처리 중 오류가 발생했습니다: ${error.message}`, 'error');
+        stopProcessing();
+      }
+    });
+
+    function startProcessing() {
+      isProcessing = true;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loadingContainer').style.display = 'block';
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('wordList').innerHTML = '';
+
+      // 초기 상태 설정
+      updateProgress(0, '파일 업로드 중...');
+    }
+
+    function stopProcessing() {
+      isProcessing = false;
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('loadingContainer').style.display = 'none';
+
+      // 진행률 모니터링 중지
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+    }
+
+    function startProgressMonitoring(taskId) {
+      // 0.3초마다 진행률 확인 (더 부드러운 업데이트)
+      progressInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/progress/${taskId}`);
+
+          if (!response.ok) {
+            throw new Error('진행률 확인 실패');
+          }
+
+          const progressData = await response.json();
+
+          if (progressData.error) {
+            throw new Error(progressData.error);
+          }
+
+          // 진행률 및 상태 업데이트
+          updateProgress(progressData.progress, progressData.status);
+
+          // 상세 상태에 따른 예상 시간 표시
+          updateEstimatedTime(progressData.progress, progressData.status);
+
+          // 완료 확인
+          if (progressData.completed) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+
+            if (progressData.result && progressData.result.length > 0) {
+              showSuccess(progressData.result);
+            } else {
+              showMessage('추출된 한자가 없습니다.', 'warning');
+            }
+
+            stopProcessing();
+          }
+
+        } catch (error) {
+          console.error('Progress monitoring error:', error);
+          clearInterval(progressInterval);
+          progressInterval = null;
+          showMessage(`진행률 확인 중 오류: ${error.message}`, 'error');
+          stopProcessing();
+        }
+      }, 300); // 0.3초마다 확인 (더 부드러운 업데이트)
+    }
+
+    function updateProgress(progress, status) {
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('progressText').textContent = progress + '%';
+      document.getElementById('statusMessage').textContent = status;
+    }
+
+    function updateEstimatedTime(progress, status) {
+      let timeMessage = '';
+
+      if (progress < 10) {
+        timeMessage = '초기화 중...';
+      } else if (progress < 30) {
+        timeMessage = 'PDF 처리 중... (약 5-10초 소요)';
+      } else if (progress < 45) {
+        timeMessage = '텍스트 정리 중... (거의 완료)';
+      } else if (progress < 60) {
+        timeMessage = 'AI 분석 준비 중... (약 10-30초 소요)';
+      } else if (progress < 80) {
+        timeMessage = 'AI가 열심히 분석 중... (조금만 기다려주세요)';
+      } else if (progress < 95) {
+        timeMessage = '결과 정리 중... (거의 완료되었습니다)';
+      } else {
+        timeMessage = '최종 검증 중... (곧 완료됩니다!)';
+      }
+
+      document.getElementById('estimatedTime').textContent = timeMessage;
+    }
+
+    function showSuccess(words) {
+      document.getElementById('result').innerHTML =
+        '<div class="success-message">✅ 한자 추출이 완료되었습니다!</div>';
+
+      // 빈 줄 기준으로 그룹 나누기
+      const groups = [];
+      let currentGroup = [];
+
+      words.forEach(line => {
+        if (line.trim() === '') {
+          if (currentGroup.length > 0) {
+            groups.push(currentGroup);
+            currentGroup = [];
+          }
+        } else {
+          currentGroup.push(line);
+        }
+      });
+
+      // 마지막 그룹 추가
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+      }
+
+      // HTML 생성
+      const listHtml = groups.map((group, groupIndex) => {
+        const groupHtml = group.map(line => `<div>${line}</div>`).join('');
+        return `<div class="word-group">${groupHtml}</div>`;
+      }).join('');
+
+      document.getElementById('wordList').innerHTML =
+        `<div style="margin-bottom: 15px; font-weight: bold; color: #007bff;">
+          📚 총 ${groups.length}개의 한자 단어가 추출되었습니다.
+        </div>` + listHtml;
+    }
+
+    function showMessage(message, type = 'info') {
+      const className = type === 'error' ? 'error-message' :
+                      type === 'warning' ? 'error-message' : 'success-message';
+
+      const icon = type === 'error' ? '❌' :
+                  type === 'warning' ? '⚠️' : 'ℹ️';
+
+      document.getElementById('result').innerHTML =
+        `<div class="${className}">${icon} ${message}</div>`;
+    }
+
+    // 파일 선택 시 파일명 표시
+    document.getElementById('pdfFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        showMessage(`📄 선택된 파일: ${file.name} (${fileSizeMB}MB)`, 'info');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쌀먹漢字 - 한자 학습 도구</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 0;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .logo {
+      font-size: 3.5em;
+      font-weight: 900;
+      background: linear-gradient(45deg, #fff, #f0f8ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin-top: 40px;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      text-decoration: none;
+      color: #333;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+      text-decoration: none;
+      color: #333;
+    }
+
+    .feature-icon {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .feature-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .feature-description {
+      font-size: 1em;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .feature-benefits {
+      font-size: 0.9em;
+      color: #888;
+      font-style: italic;
+    }
+
+    .feature-status {
+      display: inline-block;
+      background: #28a745;
+      color: white;
+      font-size: 0.8em;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    .feature-status.coming-soon {
+      background: #ffc107;
+      color: #333;
+    }
+
+    /* 특별한 카드 스타일 */
+    .feature-card.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .feature-card.primary .feature-title,
+    .feature-card.primary .feature-description {
+      color: white;
+    }
+
+    .feature-card.primary .feature-benefits {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* 반응형 디자인 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px 0;
+      }
+
+      .logo {
+        font-size: 2.5em;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .feature-card {
+        padding: 25px 20px;
+      }
+
+      .feature-card.primary {
+        transform: none;
+      }
+    }
+
+    /* 애니메이션 효과 */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .feature-card {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .feature-card:nth-child(3) { animation-delay: 0.3s; }
+    .feature-card:nth-child(4) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="logo">쌀먹漢字</h1>
+    </div>
+
+    <div class="features-grid">
+      <a class="feature-card primary" href="/c1.html">
+        <span class="feature-icon">📎</span>
+        <h2 class="feature-title">PDF 한자 링크 삽입</h2>
+        <p class="feature-description">
+          PDF의 모든 한자에 네이버 한자사전 링크를 자동으로 삽입합니다.
+          한자를 클릭하면 바로 사전으로 이동하여 뜻과 음을 확인할 수 있습니다.
+        </p>
+      </a>
+
+      <a class="feature-card" href="/c2.html">
+        <span class="feature-icon">🧠</span>
+        <h2 class="feature-title">AI 한자어 추출 + 음 병기</h2>
+        <p class="feature-description">
+          Claude AI가 PDF에서 한자 단어를 자동으로 추출하고,
+          각 한자의 훈음을 상세하게 분석해서 보여줍니다.
+        </p>
+      </a>
+
+      <a class="feature-card" href="/c3.html">
+        <span class="feature-icon">🖱️</span>
+        <h2 class="feature-title">로지텍 마우스를 사용해서 쉽게 한자 검색</h2>
+        <p class="feature-description">
+          마우스로 한자를 드래그하면 즉시 네이버 사전으로
+          연결되는 실시간 검색하는 방법에 대한 소개입니다.
+        </p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // 페이지 로드 애니메이션
+    document.addEventListener('DOMContentLoaded', function() {
+      // 헤더 애니메이션
+      const header = document.querySelector('.header');
+      header.style.opacity = '0';
+      header.style.transform = 'translateY(-30px)';
+
+      setTimeout(() => {
+        header.style.transition = 'all 0.8s ease';
+        header.style.opacity = '1';
+        header.style.transform = 'translateY(0)';
+      }, 100);
+
+      // 카드들 순차적 애니메이션
+      const cards = document.querySelectorAll('.feature-card');
+      cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 300 + (index * 150));
+      });
+    });
+
+    // 카드 호버 효과 개선
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-12px) scale(1.02)';
+      });
+
+      card.addEventListener('mouseleave', function() {
+        if (this.classList.contains('primary')) {
+          this.style.transform = 'translateY(0) scale(1.02)';
+        } else {
+          this.style.transform = 'translateY(0) scale(1)';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
