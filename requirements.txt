@@ -153,15 +153,6 @@ pyparsing==3.0.9
 pypdf==5.4.0
 pyperclip==1.8.2
 pypiwin32==223
-PyQt5==5.15.9
-pyqt5-plugins==5.15.9.2.3
-PyQt5-Qt5==5.15.2
-PyQt5-sip==12.11.0
-pyqt5-tools==5.15.9.3.3
-PyQt5Designer==5.14.1
-PyQt6==6.7.1
-PyQt6-Qt6==6.7.3
-PyQt6_sip==13.8.0
 PyRect==0.2.0
 pyrsistent==0.19.1
 PyScreeze==0.1.28
