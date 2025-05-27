@@ -91,15 +91,11 @@ def get_reading(hanja_word, hanja_dict):
 # Claude API 호출 함수 (세밀한 진행률 추적 포함)
 def ask_claude_to_extract_hanja(text, tracker):
     try:
-        tracker.update(45, "Claude AI 클라이언트 초기화 중...")
-        time.sleep(0.3)  # 짧은 지연으로 진행률 시각화
 
         client = anthropic.Anthropic(
             api_key=os.environ.get("CLAUDE_API_KEY")
         )
 
-        tracker.update(50, "AI 분석 프롬프트 준비 중...")
-        time.sleep(0.2)
 
         prompt = f"""
         다음 텍스트에서 한자 문장이랑 2글자 이상 한자 단어를 추출하고 옆에 괄호를 사용해서 음을 적어주세요. 
@@ -126,21 +122,15 @@ def ask_claude_to_extract_hanja(text, tracker):
         {text}
         """
 
-        tracker.update(55, "Claude AI 서버에 요청 전송 중...")
-        time.sleep(0.5)  # API 요청 준비 시간
-
-        tracker.update(60, "AI가 텍스트를 분석하고 있습니다...")
 
         message = client.messages.create(
-            model="claude-opus-4-20250514",
+            model="claude-sonnet-4-20250514",
             max_tokens=7168,
             messages=[
                 {"role": "user", "content": prompt}
             ]
         )
 
-        tracker.update(75, "AI 분석 완료, 한자 패턴 추출 중...")
-        time.sleep(0.3)
 
         tracker.update(82, "한자 단어 분류 및 정리 중...")
         time.sleep(0.2)
@@ -195,6 +185,7 @@ def extract_text_for_claude(pdf_path, tracker):
         tracker.update(35, "한글 문자 제거 중...")
         time.sleep(0.2)
         text = re.sub(r'[가-힣]', ' ', text)
+        #text = re.sub(r'(?<!\S)[\u4E00-\u9FFF\u3400-\u4DBF\U00020000-\U0002A6DF\uF900-\uFAFF](?!\S)', ' ', text)
 
         tracker.update(38, "공백 정리 및 텍스트 최적화 중...")
         time.sleep(0.2)
