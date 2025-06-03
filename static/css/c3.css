@@ -1,0 +1,229 @@
+/* 마우스 한자 검색 페이지 전용 스타일 */
+body {
+  text-align: center;
+  padding: 50px 20px;
+}
+
+h1 {
+  margin-bottom: 30px;
+  font-size: 2.5em;
+  font-weight: 700;
+}
+
+.intro {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 30px;
+  border-radius: 15px;
+  margin-bottom: 40px;
+  border-left: 5px solid #667eea;
+  text-align: left;
+}
+
+.intro h2 {
+  color: #667eea;
+  margin-bottom: 15px;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+.intro p {
+  color: #666;
+  line-height: 1.7;
+  font-size: 1.1em;
+  margin-bottom: 15px;
+}
+
+.step-container {
+  display: grid;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.step-card {
+  background: #f8f9fa;
+  border-radius: 15px;
+  padding: 30px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.step-card:hover {
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+}
+
+.step-number {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  line-height: 40px;
+  margin-bottom: 20px;
+}
+
+.step-title {
+  font-size: 1.4em;
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.step-description {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.code-container {
+  background: #2d3748;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+  overflow-x: auto;
+}
+
+.code-header {
+  color: #a0aec0;
+  font-size: 0.9em;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.code-content {
+  color: #e2e8f0;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  cursor: pointer;
+}
+
+.highlight {
+  background: linear-gradient(120deg, #a8e6cf 0%, #dcedc1 100%);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.mouse-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 20px 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.feature-list {
+  background: #e7f3ff;
+  border: 1px solid #b3d7ff;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.feature-list h4 {
+  color: #004085;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.feature-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.feature-list li {
+  color: #004085;
+  margin-bottom: 8px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.feature-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.warning-box {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.warning-box h4 {
+  color: #856404;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.warning-box p {
+  color: #856404;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+.download-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 15px;
+  padding: 30px;
+  margin: 30px 0;
+  text-align: center;
+}
+
+.download-btn {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: 15px;
+}
+
+.download-btn:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.step-card:nth-child(1) { animation-delay: 0.1s; }
+.step-card:nth-child(2) { animation-delay: 0.2s; }
+.step-card:nth-child(3) { animation-delay: 0.3s; }
+.step-card:nth-child(4) { animation-delay: 0.4s; }
