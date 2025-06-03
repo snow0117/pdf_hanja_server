@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF 한자 링크 삽입</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/c1.css">
+</head>
+<body>
+  <a href="/" class="home-link">← 메인으로</a>
+
+  <div class="container">
+    <h1>📎 PDF 한자 링크 삽입</h1>
+    <p class="subtitle">PDF의 모든 한자에 네이버 한자사전 링크를 자동으로 삽입해드립니다</p>
+
+    <div class="feature-info">
+      <h3>🔗 이 기능은 무엇인가요?</h3>
+      <p>PDF 파일의 모든 한자를 클릭 가능한 링크로 만들어줍니다. 한자를 클릭하면 네이버 한자사전으로 바로 이동하여 뜻과 음을 확인할 수 있습니다.</p>
+    </div>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="upload-area" onclick="document.getElementById('pdfFile').click()">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">PDF 파일을 선택하세요</div>
+        <div class="upload-subtext">클릭하거나 파일을 드래그해주세요</div>
+        <input type="file" id="pdfFile" name="file" accept="application/pdf" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary" id="processBtn">
+        🔗 링크 삽입 시작
+      </button>
+    </form>
+
+    <!-- 로딩 인디케이터 -->
+    <div id="loadingContainer" class="loading-container">
+      <div class="loading-spinner"></div>
+      <div class="progress-bar">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+      <div id="statusText" class="status-text">PDF 처리 중...</div>
+      <div id="estimatedTime" class="estimated-time">예상 시간: 계산 중...</div>
+    </div>
+
+    <!-- 결과 영역 -->
+    <div id="resultContainer" class="result-container"></div>
+  </div>
+
+  <script>
+    let isProcessing = false;
+    const uploadArea = document.querySelector('.upload-area');
+    const fileInput = document.getElementById('pdfFile');
+
+    // 파일 드래그 앤 드롭 기능
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        fileInput.files = files;
+        showFileSelected(files[0]);
+      }
+    });
+
+    // 파일 선택 이벤트
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        showFileSelected(e.target.files[0]);
+      }
+    });
+
+    function showFileSelected(file) {
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      uploadArea.innerHTML = `
+        <div class="upload-icon">✅</div>
+        <div class="upload-text">${file.name}</div>
+        <div class="upload-subtext">파일 크기: ${fileSizeMB}MB</div>
+      `;
+    }
+
+    // 폼 제출 처리
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      if (isProcessing) return;
+
+      const file = fileInput.files[0];
+      if (!file) {
+        showResult('파일을 선택해주세요.', 'error');
+        return;
+      }
+
+      startProcessing(file);
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        if (data.url) {
+          showSuccess(data.url, file.name);
+        } else {
+          throw new Error('처리된 파일 URL을 받지 못했습니다.');
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+        showResult(`처리 중 오류가 발생했습니다: ${error.message}`, 'error');
+      } finally {
+        stopProcessing();
+      }
+    });
+
+    function startProcessing(file) {
+      isProcessing = true;
+      document.getElementById('processBtn').disabled = true;
+      document.getElementById('loadingContainer').style.display = 'block';
+      document.getElementById('resultContainer').innerHTML = '';
+
+      // 파일 크기 기반 예상 시간 (MB당 약 3초)
+      const fileSizeMB = file.size / (1024 * 1024);
+      const estimatedSeconds = Math.max(5, Math.ceil(fileSizeMB * 3));
+      document.getElementById('estimatedTime').textContent =
+        `예상 시간: 약 ${estimatedSeconds}초`;
+
+      simulateProgress(estimatedSeconds);
+    }
+
+    function stopProcessing() {
+      isProcessing = false;
+      document.getElementById('processBtn').disabled = false;
+      document.getElementById('loadingContainer').style.display = 'none';
+    }
+
+    function simulateProgress(totalSeconds) {
+      const stages = [
+        { progress: 20, message: 'PDF 파일 업로드 완료', duration: 1 },
+        { progress: 40, message: 'PDF 구조 분석 중...', duration: 1 },
+        { progress: 60, message: '한자 문자 검색 중...', duration: totalSeconds - 4 },
+        { progress: 80, message: '네이버 사전 링크 삽입 중...', duration: 1 },
+        { progress: 100, message: '최종 PDF 생성 중...', duration: 1 }
+      ];
+
+      let currentStage = 0;
+
+      function updateProgress() {
+        if (currentStage >= stages.length || !isProcessing) return;
+
+        const stage = stages[currentStage];
+        document.getElementById('progressFill').style.width = stage.progress + '%';
+        document.getElementById('statusText').textContent = stage.message;
+
+        currentStage++;
+        if (currentStage < stages.length) {
+          setTimeout(updateProgress, stage.duration * 1000);
+        }
+      }
+
+      updateProgress();
+    }
+
+    function showSuccess(downloadUrl, originalFileName) {
+      const resultHTML = `
+        <div class="message message-success">
+          ✅ 한자 링크 삽입이 완료되었습니다!
+        </div>
+        <a href="${downloadUrl}" class="btn btn-success" download>
+          📥 처리된 PDF 다운로드
+        </a>
+        <div style="margin-top: 15px; font-size: 0.9em; color: #666;">
+          원본: ${originalFileName}
+        </div>
+      `;
+      document.getElementById('resultContainer').innerHTML = resultHTML;
+    }
+
+    function showResult(message, type) {
+      const className = type === 'error' ? 'message-error' : 'message-success';
+      const icon = type === 'error' ? '❌' : '✅';
+
+      document.getElementById('resultContainer').innerHTML = `
+        <div class="message ${className}">
+          ${icon} ${message}
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

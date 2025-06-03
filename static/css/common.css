@@ -1,0 +1,151 @@
+/* 공통 스타일 - 모든 페이지에서 사용 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+/* 홈 링크 공통 스타일 */
+.home-link {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  text-decoration: none;
+  color: rgba(255,255,255,0.9);
+  font-weight: bold;
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.1);
+  padding: 10px 15px;
+  border-radius: 25px;
+  backdrop-filter: blur(10px);
+}
+
+.home-link:hover {
+  color: white;
+  background: rgba(255,255,255,0.2);
+  transform: translateX(-3px);
+  text-decoration: none;
+}
+
+/* 컨테이너 공통 스타일 */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+/* 제목 공통 스타일 */
+h1 {
+  font-size: 2.2em;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* 버튼 공통 스타일 */
+.btn {
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 15px 40px;
+  font-size: 1.1em;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  padding: 15px 30px;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+/* 메시지 공통 스타일 */
+.message {
+  padding: 20px;
+  border-radius: 15px;
+  margin: 20px 0;
+  font-weight: 600;
+}
+
+.message-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.message-error {
+  background: linear-gradient(135deg, #dc3545, #e83e8c);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    margin: 20px;
+    padding: 30px 20px;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+
+  .home-link {
+    left: 10px;
+    top: 10px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+  }
+}

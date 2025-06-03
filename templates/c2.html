@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF에서 한자 단어 추출하기</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/c2.css">
+</head>
+<body>
+  <a href="/" class="home-link">← 메인으로</a>
+
+  <div class="container">
+    <h1>PDF에서 한자 단어 추출 및 음표기</h1>
+
+    <div class="upload-section">
+      <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="pdfFile" name="file" accept="application/pdf" required>
+        <br>
+        <button type="submit" id="submitBtn">업로드 및 단어 추출</button>
+      </form>
+    </div>
+
+    <!-- 로딩 인디케이터 -->
+    <div id="loadingContainer" class="loading-container">
+      <div class="hanja-loader">漢字</div>
+      <div class="loading-spinner"></div>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <div id="progressText" class="progress-text">0%</div>
+      </div>
+
+      <div id="statusMessage" class="status-message">파일 업로드 중...</div>
+      <div id="estimatedTime" class="estimated-time">처리 중...</div>
+    </div>
+
+    <div id="result"></div>
+    <div id="wordList"></div>
+  </div>
+
+  <script>
+    let isProcessing = false;
+    let progressInterval = null;
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      if (isProcessing) return;
+
+      const fileInput = document.getElementById('pdfFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        showMessage('파일을 선택해주세요.', 'error');
+        return;
+      }
+
+      startProcessing();
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // 1. 파일 업로드 및 작업 시작
+        const response = await fetch('/upload2', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const taskId = data.task_id;
+
+        // 2. 실시간 진행률 모니터링 시작
+        startProgressMonitoring(taskId);
+
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage(`처리 중 오류가 발생했습니다: ${error.message}`, 'error');
+        stopProcessing();
+      }
+    });
+
+    function startProcessing() {
+      isProcessing = true;
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loadingContainer').style.display = 'block';
+      document.getElementById('result').innerHTML = '';
+      document.getElementById('wordList').innerHTML = '';
+
+      // 초기 상태 설정
+      updateProgress(0, '파일 업로드 중...');
+    }
+
+    function stopProcessing() {
+      isProcessing = false;
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('loadingContainer').style.display = 'none';
+
+      // 진행률 모니터링 중지
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        progressInterval = null;
+      }
+    }
+
+    function startProgressMonitoring(taskId) {
+      // 0.3초마다 진행률 확인 (더 부드러운 업데이트)
+      progressInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`/progress/${taskId}`);
+
+          if (!response.ok) {
+            throw new Error('진행률 확인 실패');
+          }
+
+          const progressData = await response.json();
+
+          if (progressData.error) {
+            throw new Error(progressData.error);
+          }
+
+          // 진행률 및 상태 업데이트
+          updateProgress(progressData.progress, progressData.status);
+
+          // 상세 상태에 따른 예상 시간 표시
+          updateEstimatedTime(progressData.progress, progressData.status);
+
+          // 완료 확인
+          if (progressData.completed) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+
+            if (progressData.result && progressData.result.length > 0) {
+              showSuccess(progressData.result);
+            } else {
+              showMessage('추출된 한자가 없습니다.', 'warning');
+            }
+
+            stopProcessing();
+          }
+
+        } catch (error) {
+          console.error('Progress monitoring error:', error);
+          clearInterval(progressInterval);
+          progressInterval = null;
+          showMessage(`진행률 확인 중 오류: ${error.message}`, 'error');
+          stopProcessing();
+        }
+      }, 300); // 0.3초마다 확인 (더 부드러운 업데이트)
+    }
+
+    function updateProgress(progress, status) {
+      document.getElementById('progressFill').style.width = progress + '%';
+      document.getElementById('progressText').textContent = progress + '%';
+      document.getElementById('statusMessage').textContent = status;
+    }
+
+    function updateEstimatedTime(progress, status) {
+      let timeMessage = '';
+
+      if (progress < 10) {
+        timeMessage = '초기화 중...';
+      } else if (progress < 30) {
+        timeMessage = 'PDF 처리 중... (약 5-10초 소요)';
+      } else if (progress < 45) {
+        timeMessage = '텍스트 정리 중... (거의 완료)';
+      } else if (progress < 60) {
+        timeMessage = '분석 준비 중... (약 10-30초 소요)';
+      } else if (progress < 80) {
+        timeMessage = '분석 중... (조금만 기다려주세요)';
+      } else if (progress < 95) {
+        timeMessage = '결과 정리 중... (거의 완료되었습니다)';
+      } else {
+        timeMessage = '최종 검증 중... (곧 완료됩니다!)';
+      }
+
+      document.getElementById('estimatedTime').textContent = timeMessage;
+    }
+
+    function showSuccess(words) {
+      document.getElementById('result').innerHTML =
+        '<div class="success-message">✅ 한자 추출이 완료되었습니다!</div>';
+
+      // 빈 줄 기준으로 그룹 나누기
+      const groups = [];
+      let currentGroup = [];
+
+      words.forEach(line => {
+        if (line.trim() === '') {
+          if (currentGroup.length > 0) {
+            groups.push(currentGroup);
+            currentGroup = [];
+          }
+        } else {
+          currentGroup.push(line);
+        }
+      });
+
+      // 마지막 그룹 추가
+      if (currentGroup.length > 0) {
+        groups.push(currentGroup);
+      }
+
+      // HTML 생성
+      const listHtml = groups.map((group, groupIndex) => {
+        const groupHtml = group.map(line => `<div>${line}</div>`).join('');
+        return `<div class="word-group">${groupHtml}</div>`;
+      }).join('');
+
+      document.getElementById('wordList').innerHTML =
+        `<div style="margin-bottom: 15px; font-weight: bold; color: #007bff;">
+          📚 총 ${groups.length}개의 한자 단어가 추출되었습니다.
+        </div>` + listHtml;
+    }
+
+    function showMessage(message, type = 'info') {
+      const className = type === 'error' ? 'error-message' :
+                      type === 'warning' ? 'error-message' : 'success-message';
+
+      const icon = type === 'error' ? '❌' :
+                  type === 'warning' ? '⚠️' : 'ℹ️';
+
+      document.getElementById('result').innerHTML =
+        `<div class="${className}">${icon} ${message}</div>`;
+    }
+
+    // 파일 선택 시 파일명 표시
+    document.getElementById('pdfFile').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const fileSizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        showMessage(`📄 선택된 파일: ${file.name} (${fileSizeMB}MB)`, 'info');
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마우스 한자 검색 - 쌀먹漢字</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/c3.css">
+</head>
+<body>
+  <a href="/" class="home-link">← 메인으로</a>
+
+  <div class="container">
+    <h1>🖱️ 마우스 한자 검색</h1>
+
+    <div class="intro">
+      <h2>로지텍 마우스로 한자를 빠르게 검색하는 방법</h2>
+      <p>
+        로지텍 마우스의 사이드 버튼과 간단한 설정을 통해 모르는 한자를 즉시 검색할 수 있는
+        시스템을 구축할 수 있습니다. 텍스트를 드래그하고 마우스 버튼 하나만 누르면
+        네이버 한자사전이 자동으로 열립니다.
+      </p>
+    </div>
+
+    <div class="step-container">
+
+      <!-- 1단계: 로지텍 마우스 준비 -->
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <div class="step-title">로지텍 마우스 준비</div>
+        <div class="step-description">
+          <p>로지텍 마우스에는 우클릭, 좌클릭 버튼 외에도 <span class="highlight">사이드 버튼</span>이라고 불리는
+          추가 마우스 버튼들이 존재합니다. 이 버튼들을 활용하여 한자 검색 기능을 구현할 수 있습니다.</p>
+
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="/static/images/logitech-g502-x-plus-01-550x309.png" alt="로지텍 G502 마우스" class="mouse-image">
+          </div>
+
+          <div class="feature-list">
+            <h4>권장 로지텍 마우스 모델</h4>
+            <ul>
+              <li>G502 시리즈 (X, X Plus, Hero)</li>
+              <li>G Pro 시리즈</li>
+              <li>MX Master 시리즈</li>
+              <li>사이드 버튼이 있는 모든 로지텍 마우스</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2단계: G HUB 설치 및 설정 -->
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <div class="step-title">G HUB 설치 및 설정</div>
+        <div class="step-description">
+          <p><span class="highlight">G HUB</span>는 로지텍 전용 마우스 드라이버로, 마우스 버튼을 사용하여
+          응용 프로그램을 실행할 수 있게 해줍니다.</p>
+
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="/static/images/Pasted image 20250527001138.png"
+              alt="G HUB 인터페이스"
+              class="mouse-image">
+          </div>
+
+          <div class="download-section">
+            <h3>G HUB 다운로드</h3>
+            <p>로지텍 공식 웹사이트에서 G HUB를 다운로드하세요</p>
+            <a href="https://www.logitechg.com/innovation/g-hub.html" target="_blank" class="download-btn">
+              G HUB 다운로드
+            </a>
+          </div>
+
+          <div class="warning-box">
+            <h4>⚠️ 주의사항</h4>
+            <p>G HUB 설치 후 마우스를 다시 연결하거나 컴퓨터를 재시작해야 할 수 있습니다.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3단계: 루아 스크립트 설정 -->
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <div class="step-title">루아 스크립트 설정</div>
+        <div class="step-description">
+          <p>G HUB에서 <span class="highlight">루아 스크립트</span>를 사용하여 특정 버튼이 눌렸을 때의
+          동작을 프로그래밍할 수 있습니다. 아래는 텍스트를 복사(Ctrl+C)하는 스크립트입니다.</p>
+
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="/static/images/Pasted image 20250527003640.png"
+              alt="루아 스크립트 설정"
+              class="mouse-image">
+          </div>
+
+          <div class="code-container">
+            <div class="code-header">Lua Script (G HUB에서 설정)</div>
+            <div class="code-content">function OnEvent(event, arg)
+    -- G5 버튼 (사이드 버튼)이 눌렸을 때
+    OutputLogMessage("Event: %s, Arg: %d\n", event, arg)
+
+    if event == "MOUSE_BUTTON_PRESSED" and arg == 5 then
+        PressKey("lctrl")
+        PressKey("c")
+    end
+
+    if event == "MOUSE_BUTTON_RELEASED" and arg == 5 then
+        ReleaseKey("c")
+        ReleaseKey("lctrl")
+    end
+end</div>
+          </div>
+
+          <div class="feature-list">
+            <h4>스크립트 설명</h4>
+            <ul>
+              <li>arg == 5: 사이드 버튼 번호 (마우스마다 다를 수 있음)</li>
+              <li>MOUSE_BUTTON_PRESSED: 버튼을 누를 때</li>
+              <li>MOUSE_BUTTON_RELEASED: 버튼을 뗄 때</li>
+              <li>PressKey/ReleaseKey: 키보드 입력 시뮬레이션</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4단계: Python 실행 파일 생성 -->
+      <div class="step-card">
+        <div class="step-number">4</div>

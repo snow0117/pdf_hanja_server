@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>쌀먹漢字 - 한자 학습 도구</title>
+  <link rel="stylesheet" href="/static/css/common.css">
+  <link rel="stylesheet" href="/static/css/index.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="logo">쌀먹漢字</h1>
+    </div>
+
+    <div class="features-grid">
+      <a class="feature-card primary" href="/c1.html">
+        <span class="feature-icon">📎</span>
+        <h2 class="feature-title">PDF 한자 링크 삽입</h2>
+        <p class="feature-description">
+          PDF의 모든 한자에 네이버 한자사전 링크를 자동으로 삽입합니다.
+          한자를 클릭하면 바로 사전으로 이동하여 뜻과 음을 확인할 수 있습니다.
+        </p>
+      </a>
+
+      <a class="feature-card" href="/c2.html">
+        <span class="feature-icon">🧠</span>
+        <h2 class="feature-title">AI 한자어 추출 + 음 병기</h2>
+        <p class="feature-description">
+          PDF에서 한자 단어를 자동으로 추출하고,
+          각 한자의 훈음을 상세하게 분석해서 보여줍니다.
+        </p>
+      </a>
+
+      <a class="feature-card" href="/c3.html">
+        <span class="feature-icon">🖱️</span>
+        <h2 class="feature-title">로지텍 마우스를 사용해서 쉽게 한자 검색</h2>
+        <p class="feature-description">
+          마우스로 한자를 드래그하면 즉시 네이버 사전으로
+          연결되는 실시간 검색하는 방법에 대한 소개입니다.
+        </p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // 페이지 로드 애니메이션
+    document.addEventListener('DOMContentLoaded', function() {
+      // 헤더 애니메이션
+      const header = document.querySelector('.header');
+      header.style.opacity = '0';
+      header.style.transform = 'translateY(-30px)';
+
+      setTimeout(() => {
+        header.style.transition = 'all 0.8s ease';
+        header.style.opacity = '1';
+        header.style.transform = 'translateY(0)';
+      }, 100);
+
+      // 카드들 순차적 애니메이션
+      const cards = document.querySelectorAll('.feature-card');
+      cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+
+        setTimeout(() => {
+          card.style.transition = 'all 0.6s ease';
+          card.style.opacity = '1';
+          card.style.transform = 'translateY(0)';
+        }, 300 + (index * 150));
+      });
+    });
+
+    // 카드 호버 효과 개선
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-12px) scale(1.02)';
+      });
+
+      card.addEventListener('mouseleave', function() {
+        if (this.classList.contains('primary')) {
+          this.style.transform = 'translateY(0) scale(1.02)';
+        } else {
+          this.style.transform = 'translateY(0) scale(1)';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

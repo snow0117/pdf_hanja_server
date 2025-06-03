@@ -1,0 +1,177 @@
+/* 메인 페이지 전용 스타일 */
+body {
+  padding: 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 0;
+  background: none;
+  box-shadow: none;
+}
+
+.container::before {
+  display: none;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.logo {
+  font-size: 3.5em;
+  font-weight: 900;
+  background: linear-gradient(45deg, #fff, #f0f8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 20px;
+  text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.feature-card {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  text-decoration: none;
+  color: #333;
+}
+
+.feature-icon {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.feature-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.feature-description {
+  font-size: 1em;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.feature-benefits {
+  font-size: 0.9em;
+  color: #888;
+  font-style: italic;
+}
+
+.feature-status {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  font-size: 0.8em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-top: 15px;
+  font-weight: 600;
+}
+
+.feature-status.coming-soon {
+  background: #ffc107;
+  color: #333;
+}
+
+/* 특별한 카드 스타일 */
+.feature-card.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: scale(1.02);
+}
+
+.feature-card.primary .feature-title,
+.feature-card.primary .feature-description {
+  color: white;
+}
+
+.feature-card.primary .feature-benefits {
+  color: rgba(255,255,255,0.8);
+}
+
+/* 애니메이션 효과 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feature-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.feature-card:nth-child(1) { animation-delay: 0.1s; }
+.feature-card:nth-child(2) { animation-delay: 0.2s; }
+.feature-card:nth-child(3) { animation-delay: 0.3s; }
+.feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px 0;
+  }
+
+  .logo {
+    font-size: 2.5em;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .feature-card {
+    padding: 25px 20px;
+  }
+
+  .feature-card.primary {
+    transform: none;
+  }
+}
